@@ -1,0 +1,1 @@
+python -OO -m PyInstaller --onefile --icon=logo.ico --name=BTFGMonitor BTFGMonitor.py
