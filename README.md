@@ -34,3 +34,7 @@ estimateActual = (currentFund/totalShare)*minerShare
 **Shares per Block** - Your mining share in the pool for each block in the current round.
 
 **Total Share** - Your mining share in the pool for the current round.
+
+## Forks
+
+Angular 5/Electron: https://github.com/javajohnHub/BtfgMonitor
