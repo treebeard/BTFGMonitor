@@ -1,5 +1,7 @@
 # BTFGMonitor
 
+![Screenshot](monitor.JPG)
+
 ## How to run the monitor
 
 Run in Windows using the executable file (found under 'releases'), or with Python 2 or 3 using the Python source file.
