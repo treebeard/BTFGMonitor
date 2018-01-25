@@ -1,6 +1,6 @@
 # BTFGMonitor
 
-![Screenshot](monitor.JPG)
+![Screenshot](screenshot.png)
 
 ## How to run the monitor
 
