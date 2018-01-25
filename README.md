@@ -1,6 +1,8 @@
 # BTFGMonitor
 
-![Screenshot](screenshot.png)
+<p align="center">
+  <img src="https://github.com/treebeard/BTFGMonitor/raw/master/screenshot.png" alt="Screenshot"></img>  
+</p>
 
 ## How to run the monitor
 
