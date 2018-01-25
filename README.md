@@ -2,7 +2,7 @@
 
 ## How to run the monitor
 
-Run in Windows using the executable file, or with Python 2 or 3 using the Python source file.
+Run in Windows using the executable file (found under 'releases'), or with Python 2 or 3 using the Python source file.
 
 1. When prompted, enter either your BURST Address (BURST-XXXX-XXXX-XXXX-XXXXX) or Numeric ID and hit enter
 2. Display Block Shares - Displays a graph of your shares (default: **yes**)
