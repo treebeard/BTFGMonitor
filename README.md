@@ -8,7 +8,8 @@ Run in Windows using the executable file, or with Python 2 or 3 using the Python
 2. Display Block Shares - Displays a graph of your shares (default: **yes**)
 3. Update Frequency - Time in seconds between monitor updates (default: **360**, minimum: **60**)
 4. Max Chart Width - Max character width of the graph's bars (default: **40**)
-5. A config file (BTFGMonitor.ini) will be saved in the same location as the application. Open and modify this file with a text editor to change the configuation.
+5. Currency - Displays fiat currency values (default: **USD**, options: **AUD**, **BRL**, **CAD**, **CHF**, **CLP**, **CNY**, **CZK**, **DKK**, **EUR**, **GBP**, **HKD**, **HUF**, **IDR**, **ILS**, **INR**, **JPY**, **KRW**, **MXN**, **MYR**, **NOK**, **NZD**, **PHP**, **PKR**, **PLN**, **RUB**, **SEK**, **SGD**, **THB**, **TRY**, **TWD**, **USD**, **ZAR**) 
+6. A config file (BTFGMonitor.ini) will be saved in the same location as the application. Open and modify this file with a text editor to change the configuation.
 
 ## How to interpret the monitor
 

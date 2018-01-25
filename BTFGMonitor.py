@@ -86,7 +86,7 @@ def print_output(blockLabels, blockShares, accountData, pendingPayment, totalSha
     #print wallet data
     print_account_data(accountData)
     #print pending payment
-    print('\x1b[1m' + "Pending Balance: " + '\x1b[0m' + '\x1b[1;33;40m' + str(pendingPayment) + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m')
+    print('\x1b[1m' + "Pending Balance: " + '\x1b[0m' + '\x1b[1;33;40m' + str(pendingPayment) + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(pendingPayment))
     #print estimated payout
     print_estimated_reward(totalShare, minerShare, totalPending)
     #print current block info
@@ -139,8 +139,8 @@ def print_estimated_reward(totalShare, minerShare, totalPending):
         currentFund = max((poolBalance + blockReward - totalPending - 3000), blockReward)
         estimateActual = (currentFund/totalShare)*minerShare
         estimateActual = format(estimateActual,'.4f')
-    print('\x1b[1m' + "Estimated Baseline Revenue: " + '\x1b[0m' + "~" + str(estimateBaseline) + '\x1b[1;31;40m' + " BURST" + '\x1b[0m')
-    print('\x1b[1m' + "Estimated Actual Revenue: " + '\x1b[0m' + "~" + str(estimateActual) + '\x1b[1;31;40m' + " BURST" + '\x1b[0m')
+    print('\x1b[1m' + "Estimated Baseline Revenue: " + '\x1b[0m' + "~" + str(estimateBaseline) + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(estimateBaseline))
+    print('\x1b[1m' + "Estimated Actual Revenue: " + '\x1b[0m' + "~" + str(estimateActual) + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(estimateActual))
 
 
 def print_account_data(data):
@@ -152,17 +152,28 @@ def print_account_data(data):
         else:
             #parse and print wallet name, address, and current balance
             currentBalance = data["balanceNQT"]
-            if len(currentBalance) > 8:
+            burstAddress = data["accountRS"]
+            minPayoutThreshold = str(minPayout(burstAddress))
+            if minPayoutThreshold == "Pool Default":
+                minPayoutThreshold = str(20)
+
+            balanceDigits = len(currentBalance)
+            if balanceDigits > 8:
                 currentBalance = currentBalance[:-8] + '.' + currentBalance[-8:]
             else:
-                currentBalance = "0." + currentBalance
+                tempCurrent = currentBalance
+                currentBalance = "0." 
+                for i in range(8-balanceDigits):
+                    currentBalance = currentBalance + "0" 
+                currentBalance = currentBalance + tempCurrent
 
             if "name" in data:
                 print('\x1b[1m' + "Name: " + '\x1b[0m' + '\x1b[0;35;40m' + data["name"] + '\x1b[0m')
             if "description" in data:
                 print('\x1b[1m' + "Description: " + '\x1b[0m' + data["description"])
-            print('\x1b[1m' + "Address: " + '\x1b[0m' + data["accountRS"])
-            print('\x1b[1m' + "Current Balance: " + '\x1b[0m' + '\x1b[1;32;40m' + currentBalance + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m')
+            print('\x1b[1m' + "Address: " + '\x1b[0m' + burstAddress)
+            print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + minPayoutThreshold + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(minPayoutThreshold))
+            print('\x1b[1m' + "Current Balance: " + '\x1b[0m' + '\x1b[1;32;40m' + currentBalance + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(currentBalance))
     except:
         print("Error processing Account JSON data")
 
@@ -235,12 +246,38 @@ def burst_to_numeric(numeric_id):
     except:
         print("Error processing Account JSON data")
 
+def minPayout(burstAddress):
+    minPayoutThreshold = 0
+    try:
+        data = requests.get('http://burst.btfg.space:8000/btfgminpayment.php?address=' + burstAddress)
+        data = data.json()
+
+        return data["Threshold"]
+    except:
+        print("Error processing min payout threshold data")
+
+def fiatConversion(burstAmt):
+    fiatVal = 0
+    data = requests.get('https://api.coinmarketcap.com/v1/ticker/burst/?convert=' + CURRENCY)
+    data = data.json()
+    data = data[0]
+    in_string = "price_" + CURRENCY.lower()
+    if in_string in data:
+        fiatVal = float(data[in_string])*float(burstAmt)
+        fiatVal = '{:0.2f}'.format(fiatVal)
+        return " (" + fiatVal + " " + CURRENCY.upper() + ")"
+    else:
+        fiatVal = float(data["price_usd"])*float(burstAmt)
+        fiatVal = '{:0.2f}'.format(fiatVal)
+        return " (" + fiatVal + " USD" + ")"
+
 # MAIN
 if __name__ == "__main__":
     #default config
     MAX_WIDTH = 40
     DISPLAY_SHARES = 1
     INTERVAL = 360
+    CURRENCY = "USD"
 
     #chart character
     TICK = b'\xe2\x96\x88'.decode('utf-8')
@@ -252,7 +289,7 @@ if __name__ == "__main__":
     #Handle user input and config
     config = configparser.ConfigParser()    
 
-    print('\x1b[1m' + "BTFG Monitor v1.0" + '\x1b[0m')
+    print('\x1b[1m' + "BTFG Monitor v1.1" + '\x1b[0m')
     print("created by " + '\x1b[0;34;46m' + "velagand\n" + '\x1b[0m')
 
     if not os.path.exists('BTFGMonitor.ini'):
@@ -268,12 +305,14 @@ if __name__ == "__main__":
         shares_input = six.moves.input('\x1b[1m' + "Display Block Shares (default=yes): " + '\x1b[0m').strip().lower()
         interval_input = six.moves.input('\x1b[1m' + "Update Frequency (default=360, minimum=60): " + '\x1b[0m').strip()
         width_input = six.moves.input('\x1b[1m' + "Max Chart Width (default=40): " + '\x1b[0m').strip()
+        currency_input = six.moves.input('\x1b[1m' + "Currency (default=USD): " + '\x1b[0m').strip()
 
         #create config
         config['DEFAULT'] = {'id' : numeric_id,
                              'displayShares': shares_input,
                              'interval': interval_input,
-                             'width': width_input}
+                             'width': width_input,
+                             'currency': currency_input}
         #write config file
         with open('BTFGMonitor.ini', 'w') as f:
             config.write(f)
@@ -286,19 +325,27 @@ if __name__ == "__main__":
             shares_input = config['DEFAULT']['displayShares']
             interval_input = config['DEFAULT']['interval']
             width_input = config['DEFAULT']['width']
+            currency_input = config['DEFAULT']['currency']
         except:
             print("Error, parsing config failed")
 
     if shares_input == 'no' or shares_input=='n':
         DISPLAY_SHARES = 0
+
     if not interval_input or int(interval_input) < 60:
         pass
     else:
         INTERVAL = int(interval_input)
+
     if not width_input:
         pass
     else:
         MAX_WIDTH = int(width_input)
+
+    if not currency_input:
+        pass
+    else:
+        CURRENCY = str(currency_input).upper()
 
     for i in range(MAX_WIDTH + 20):
         sys.stdout.write('\x1b[2;34;40m' + SPACER + '\x1b[0m')
