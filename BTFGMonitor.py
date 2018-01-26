@@ -262,14 +262,17 @@ def fiatConversion(burstAmt):
     data = data.json()
     data = data[0]
     in_string = "price_" + CURRENCY.lower()
-    if in_string in data:
-        fiatVal = float(data[in_string])*float(burstAmt)
-        fiatVal = '{:0.2f}'.format(fiatVal)
-        return " (" + fiatVal + " " + CURRENCY.upper() + ")"
+    if burstAmt == "N/A":
+        return ""
     else:
-        fiatVal = float(data["price_usd"])*float(burstAmt)
-        fiatVal = '{:0.2f}'.format(fiatVal)
-        return " (" + fiatVal + " USD" + ")"
+        if in_string in data:
+            fiatVal = float(data[in_string])*float(burstAmt)
+            fiatVal = '{:0.2f}'.format(fiatVal)
+            return " (" + fiatVal + " " + CURRENCY.upper() + ")"
+        else:
+            fiatVal = float(data["price_usd"])*float(burstAmt)
+            fiatVal = '{:0.2f}'.format(fiatVal)
+            return " (" + fiatVal + " USD" + ")"
 
 # MAIN
 if __name__ == "__main__":
