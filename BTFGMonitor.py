@@ -88,7 +88,7 @@ def print_output(blockLabels, blockShares, accountData, pendingPayment, totalSha
     #print pending payment
     print('\x1b[1m' + "Pending Balance: " + '\x1b[0m' + '\x1b[1;33;40m' + str(pendingPayment) + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(pendingPayment))
     #print estimated payout
-    print_estimated_reward(totalShare, minerShare, totalPending)
+    print_estimated_reward(accountData, totalShare, minerShare, totalPending)
     #print current block info
     print_cur_block()
 
@@ -117,11 +117,9 @@ def print_cur_block():
     data = data.json()
     print('\x1b[1m' + "Current Block: " + '\x1b[0m' + '\x1b[1;36;40m' + str(data["numberOfBlocks"]) + '\x1b[0m')
 
-def print_estimated_reward(totalShare, minerShare, totalPending):
-    data = requests.get("https://wallet.burst.cryptoguru.org:8125/burst?requestType=getAccount&account=9146480761707329845")
-    data = data.json()
+def print_estimated_reward(accountData, totalShare, minerShare, totalPending):
 
-    poolBalance = str(data["effectiveBalanceNXT"])
+    poolBalance = str(accountData["effectiveBalanceNXT"])
     poolBalance = poolBalance[:-8] + '.' + poolBalance[-8:]
     poolBalance = float(poolBalance)
 
