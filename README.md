@@ -30,7 +30,7 @@ estimateBaseline = (minerShare*blockReward)/totalShare
 **Estimated Actual Revenue** - Your estimated earnings if the pool were to win the current block (uses both pool balance and block reward in calculation).
 
 ```python
-currentFund = max((poolBalance + blockReward - totalPending - 3000), blockReward)
+currentFund = blockReward + ((poolBalance - totalPending)*.1)
 estimateActual = (currentFund/totalShare)*minerShare
 ```
 
@@ -39,6 +39,8 @@ estimateActual = (currentFund/totalShare)*minerShare
 **Shares per Block** - Your mining share in the pool for each block in the current round.
 
 **Total Share** - Your mining share in the pool for the current round.
+
+**Payment Deferred** - BTFG pool does not pay based off of block reward. It pays based on the pool balance and the amount pending in order to ensure that 100% of the funds, including dust accumulation, is paid back to miners. It is also how we distribute the dividends, from the BTFG asset that the pool earns, back to miners. However, this may cause an issue during multiple quick block finds: That is, miners as a whole may end up getting paid more than they should. "Payment Deferred" is the pool's way of equalizing the books. You will still make the same for that block, but you would have recieved a partial advance from that multiple block find. Your shares are kept past the next block find and will be applied to the win after that.
 
 ## Forks
 
