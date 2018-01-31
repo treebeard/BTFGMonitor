@@ -317,7 +317,7 @@ if __name__ == "__main__":
 	#Handle user input and config
 	config = configparser.ConfigParser()    
 
-	print('\x1b[1m' + "BTFG Monitor v1.1" + '\x1b[0m')
+	print('\x1b[1m' + "BTFG Monitor v1.2" + '\x1b[0m')
 	print("created by " + '\x1b[0;34;46m' + "velagand\n" + '\x1b[0m')
 
 	if not os.path.exists('BTFGMonitor.ini'):
