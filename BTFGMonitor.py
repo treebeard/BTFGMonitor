@@ -95,13 +95,19 @@ def print_output(data, accountData):
 	print('\x1b[1m' + "Last Update: " + '\x1b[0m' + time.strftime("%x") + " " + time.strftime("%X"))
 	#print wallet data
 	if "Name" in data["Account"]:
-		print('\x1b[1m' + "Name: " + '\x1b[0m' + '\x1b[0;35;40m' + data["Account"]["Name"] + '\x1b[0m')
+		try:
+			str(data["Account"]["Name"])
+			print('\x1b[1m' + "Name: " + '\x1b[0m' + '\x1b[0;35;40m' + data["Account"]["Name"] + '\x1b[0m')
+		except:
+			print('\x1b[1m' + "Numeric ID: " + '\x1b[0m' + '\x1b[0;35;40m' + numeric_id + '\x1b[0m')
 	if "Description" in data["Account"]:
 		print('\x1b[1m' + "Description: " + '\x1b[0m' + data["Account"]["Description"])
 	if "Address" in data["Account"]:
 		print('\x1b[1m' + "Address: " + '\x1b[0m' + data["Account"]["Address"])
 	if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "20 Plus Weekly":
 		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(20))
+	if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "Weekly":
+		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + "Weekly")
 	elif "Threshold" in data["Burst"]:
 		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Threshold"]))
 	
@@ -242,7 +248,7 @@ if __name__ == "__main__":
 	API_KEY = "" #Enter BTFG API Key here
 
 	#chart character
-	TICK = b'\xe2\x96\x88'.decode('utf-8')
+	TICK = u"\u2588"
 	SPACER = "_"
 
 	#clear screen
