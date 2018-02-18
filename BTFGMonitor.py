@@ -16,10 +16,10 @@ try:
 	import tendo.ansiterm
 except:
 	try:
-	   	import colorama
+		import colorama
 		colorama.init()
 	except:
-	   pass
+		pass
 
 try:
 	session = requests.Session()
@@ -106,7 +106,7 @@ def print_output(data, accountData):
 		print('\x1b[1m' + "Address: " + '\x1b[0m' + data["Account"]["Address"])
 	if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "20 Plus Weekly":
 		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(20))
-	if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "Weekly":
+	elif "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "Weekly":
 		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + "Weekly")
 	elif "Threshold" in data["Burst"]:
 		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Threshold"]))
