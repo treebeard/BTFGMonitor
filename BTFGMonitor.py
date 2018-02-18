@@ -248,7 +248,7 @@ if __name__ == "__main__":
 	API_KEY = "" #Enter BTFG API Key here
 
 	#chart character
-	TICK = u"\u2588"
+	TICK = b'\xe2\x96\x88'.decode('utf-8')
 	SPACER = "_"
 
 	#clear screen
