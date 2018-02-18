@@ -13,11 +13,11 @@ import warnings
 import six
 
 try:
-	import colorama
-	colorama.init()
+	import tendo.ansiterm
 except:
 	try:
-	   import tendo.ansiterm
+	   	import colorama
+		colorama.init()
 	except:
 	   pass
 
@@ -100,7 +100,9 @@ def print_output(data, accountData):
 		print('\x1b[1m' + "Description: " + '\x1b[0m' + data["Account"]["Description"])
 	if "Address" in data["Account"]:
 		print('\x1b[1m' + "Address: " + '\x1b[0m' + data["Account"]["Address"])
-	if "Threshold" in data["Burst"]:
+	if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "20 Plus Weekly":
+		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(20))
+	elif "Threshold" in data["Burst"]:
 		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Threshold"]))
 	
 	print_current_balance(accountData)
@@ -212,6 +214,7 @@ def fiatConversion(burstAmt):
 def burst_data():
 	"""Main data processing"""
 	data = ""
+	accountData = ""
 	try:
 		#get pool data
 		data = session.get('http://burst.btfg.space:8000/btfgmonitor.php?api=' + API_KEY + '&id=' + numeric_id)
