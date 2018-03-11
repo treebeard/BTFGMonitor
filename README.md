@@ -10,6 +10,7 @@ Run in Windows using the executable file (found under 'releases'), or with Pytho
 
 1. When prompted, enter either your BURST Address (BURST-XXXX-XXXX-XXXX-XXXXX) or Numeric ID and hit enter
 2. Display Block Shares - Displays a graph of your shares (default: **yes**)
+3. Display Past Payouts - Displays recent pool payouts to your wallet (default: **no**)
 3. Update Frequency - Time in seconds between monitor updates (default: **360**, minimum: **60**)
 4. Max Chart Width - Max character width of the graph's bars (default: **40**)
 5. Currency - Displays fiat currency values (default: **USD**, options: **AUD**, **BRL**, **CAD**, **CHF**, **CLP**, **CNY**, **CZK**, **DKK**, **EUR**, **GBP**, **HKD**, **HUF**, **IDR**, **ILS**, **INR**, **JPY**, **KRW**, **MXN**, **MYR**, **NOK**, **NZD**, **PHP**, **PKR**, **PLN**, **RUB**, **SEK**, **SGD**, **THB**, **TRY**, **TWD**, **USD**, **ZAR**) 

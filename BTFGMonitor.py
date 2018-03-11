@@ -11,6 +11,8 @@ import threading
 import time
 import warnings
 import six
+import socket
+import datetime
 
 try:
 	import tendo.ansiterm
@@ -33,6 +35,10 @@ except:
 warnings.filterwarnings("ignore")
 
 # GRAPH FUNCTIONS
+def convertTime(seconds):
+	output = str(datetime.timedelta(seconds=seconds))
+	return output
+
 def normalize(data):
 	"""Data normalization"""
 	min_dat = min(data)
@@ -60,7 +66,7 @@ def horizontal_rows(labels, data, normal_dat):
 		label = "{}: ".format(labels[i])
 		value = data[i]
 		num_blocks = normal_dat[i]
-		tail = ' {}{}'.format('{:.0f}'.format(value), '')
+		tail = convertTime(data[i])
 		yield (label, value, int(num_blocks), val_min, val_max, tail)
 
 def print_row(label, value, num_blocks, val_min, val_max, tail):
@@ -70,23 +76,22 @@ def print_row(label, value, num_blocks, val_min, val_max, tail):
 		print('\x1b[1;31;40m' + "no deadline" + '\x1b[0m') 
 	elif num_blocks < 1 and value > 0:
 		#prints a single tick for positive data points normalized to < 1
-		
 		if value <= val_min:
 			sys.stdout.write('\x1b[1;32;40m' + TICK + '\x1b[0m')
-			print(" " + str(tail) + "s")
+			print(" " + str(tail))
 		else:
 			sys.stdout.write('\x1b[1;33;40m' + TICK + '\x1b[0m')
-			print(" " + str(tail) + "s")
+			print(" " + str(tail))
 	else:
 		#prints 2 ticks for normalized data > 1
 		if value >= val_max:
 			for i in range(num_blocks):
 				sys.stdout.write('\x1b[1;31;40m' + TICK+TICK +'\x1b[0m')
-			print(" " + str(tail) + "s")
+			print(" " + str(tail))
 		else:
 			for i in range(num_blocks):
 				sys.stdout.write('\x1b[1;33;40m' + TICK+TICK + '\x1b[0m')
-			print(" " + str(tail) + "s")
+			print(" " + str(tail))
 
 # PRINT FUNCTIONS
 def print_output(data, accountData):
@@ -94,34 +99,38 @@ def print_output(data, accountData):
 	#print current time
 	print('\x1b[1m' + "Last Update: " + '\x1b[0m' + time.strftime("%x") + " " + time.strftime("%X"))
 	#print wallet data
-	if "Name" in data["Account"]:
-		try:
-			str(data["Account"]["Name"])
-			print('\x1b[1m' + "Name: " + '\x1b[0m' + '\x1b[0;35;40m' + data["Account"]["Name"] + '\x1b[0m')
-		except:
-			print('\x1b[1m' + "Numeric ID: " + '\x1b[0m' + '\x1b[0;35;40m' + numeric_id + '\x1b[0m')
-	if "Description" in data["Account"]:
-		print('\x1b[1m' + "Description: " + '\x1b[0m' + data["Account"]["Description"])
-	if "Address" in data["Account"]:
-		print('\x1b[1m' + "Address: " + '\x1b[0m' + data["Account"]["Address"])
-	if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "20 Plus Weekly":
-		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(20))
-	elif "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "Weekly":
-		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + "Weekly")
-	elif "Threshold" in data["Burst"]:
-		print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Threshold"]))
-	
-	print_current_balance(accountData)
+	try:
+		if "Name" in data["Account"]:
+			try:
+				str(data["Account"]["Name"])
+				print('\x1b[1m' + "Name: " + '\x1b[0m' + '\x1b[0;35;40m' + data["Account"]["Name"] + '\x1b[0m')
+			except:
+				print('\x1b[1m' + "Numeric ID: " + '\x1b[0m' + '\x1b[0;35;40m' + numeric_id + '\x1b[0m')
+		if "Description" in data["Account"]:
+			print('\x1b[1m' + "Description: " + '\x1b[0m' + data["Account"]["Description"])
+		if "Address" in data["Account"]:
+			print('\x1b[1m' + "Address: " + '\x1b[0m' + data["Account"]["Address"])
+		if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "20 Plus Weekly":
+			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(20))
+		elif "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "Weekly":
+			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + "Weekly")
+		elif "Threshold" in data["Burst"]:
+			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Threshold"]))
+	except:
+		pass
 
-	#print pending payment
-	if "Pending" in data["Burst"]:
-		print('\x1b[1m' + "Pending Balance: " + '\x1b[0m' + '\x1b[1;33;40m' + str(data["Burst"]["Pending"]) + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Pending"]))
-	#print estimated payout
-	if "Estimate" in data["Burst"]:
-		print('\x1b[1m' + "Estimated Revenue: " + '\x1b[0m' + "~" + str(data["Burst"]["Estimate"]) + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Estimate"]))
+	print_current_balance(accountData)
+	try:
+		#print pending payment
+		if "Pending" in data["Burst"]:
+			print('\x1b[1m' + "Pending Balance: " + '\x1b[0m' + '\x1b[1;33;40m' + str(data["Burst"]["Pending"]) + '\x1b[0m' + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Pending"]))
+		#print estimated payout
+		if "Estimate" in data["Burst"]:
+			print('\x1b[1m' + "Estimated Revenue: " + '\x1b[0m' + "~" + str(data["Burst"]["Estimate"]) + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Estimate"]))
+	except:
+		pass
 	#print current block info
 	print_cur_block()
-
 
 	blockLabels = []
 	blockShares = []
@@ -129,27 +138,39 @@ def print_output(data, accountData):
 		for blockNum in sorted(data["Deadlines"]["Deadlines"].keys()):
 			blockLabels.append(blockNum)
 			blockShares.append(int(data["Deadlines"]["Deadlines"][blockNum]))
+		if (DISPLAY_SHARES == 1):
+			if (len(blockShares) > 0):
+				#normalize data
+				normal_dat = normalize(blockShares)
+
+				print("\n" + '\x1b[1m' + "Deadlines per Block (Last 10 Blocks):" + '\x1b[0m')
+				if all (key in data["Deadlines"] for key in ("Best","Average", "Worst")):
+					print('\x1b[1;32;40m' + "Best: " + '\x1b[0m' + str(convertTime(int(data["Deadlines"]["Best"]))))
+					print('\x1b[1;33;40m' + "Average: " + '\x1b[0m' + str(convertTime(int(data["Deadlines"]["Average"]))))
+					print('\x1b[1;31;40m' + "Worst: " + '\x1b[0m' + str(convertTime(int(data["Deadlines"]["Worst"]))))
+
+				# Generate data for a row.
+				for row in horizontal_rows(blockLabels, blockShares, normal_dat):
+					print_row(*row)
+				if all (key in data["Shares"] for key in ("AvgDiff","PoolDiff", "Percent")):
+					print('\x1b[1m' + "Historical Share: " + '\x1b[0m' + str(data["Shares"]["AvgDiff"]) + " / " + str(data["Shares"]["PoolDiff"]) + " (" + str(round(data["Shares"]["Percent"]*100,3)) + "%)")
+			else:
+				print("New round, no new blocks")
 	except:
 		pass
 
-	if (DISPLAY_SHARES == 1):
-		if (len(blockShares) > 0):
-			#normalize data
-			normal_dat = normalize(blockShares)
-
-			print("\n" + '\x1b[1m' + "Deadlines per Block (Last 10 Blocks):" + '\x1b[0m')
-			if all (key in data["Deadlines"] for key in ("Best","Average", "Worst")):
-				print('\x1b[1;32;40m' + "Best: " + '\x1b[0m' + str(data["Deadlines"]["Best"]) + "s")
-				print('\x1b[1;33;40m' + "Average: " + '\x1b[0m' + str(data["Deadlines"]["Average"]) + "s")
-				print('\x1b[1;31;40m' + "Worst: " + '\x1b[0m' + str(data["Deadlines"]["Worst"]) + "s")
-
-			# Generate data for a row.
-			for row in horizontal_rows(blockLabels, blockShares, normal_dat):
-				print_row(*row)
-			if all (key in data["Shares"] for key in ("AvgDiff","PoolDiff", "Percent")):
-				print('\x1b[1m' + "Historical Share: " + '\x1b[0m' + str(data["Shares"]["AvgDiff"]) + " / " + str(data["Shares"]["PoolDiff"]) + " (" + str(round(data["Shares"]["Percent"]*100,3)) + "%)")
-		else:
-			print("New round, no new blocks")
+	if DISPLAY_TX == 1:
+		try:
+			space='    '
+			print('\x1b[1m' + "\nRecent Transactions:" + '\x1b[0m')
+			for tx, info in data["TX"].items():
+				print("TxID: " + tx)
+				print("Time: " + info["Time"])
+				print("Amount: " + '{:.8f}'.format(float(info["Amount"]) / 100000000))
+				print("")
+		except Exception as e:
+			print(e)
+			pass
 
 	for i in range(MAX_WIDTH + 20):
 		sys.stdout.write('\x1b[2;34;40m' + SPACER + '\x1b[0m')
@@ -158,7 +179,9 @@ def print_output(data, accountData):
 def print_current_balance(data):
 	"""Prints user wallet balance"""
 	try:
-		if "errorCode" in data:
+		if not data:
+			pass
+		elif "errorCode" in data:
 			#failed burst address/ID
 			print("Error: " + data["errorDescription"])
 		else:
@@ -183,10 +206,13 @@ def print_current_balance(data):
 
 def print_cur_block():
 	"""Gets and prints the current block number"""
-	url = "https://wallet.burst.cryptoguru.org:8125/burst?requestType=getBlockchainStatus"
-	data = session.get(url)
-	data = data.json()
-	print('\x1b[1m' + "Current Block: " + '\x1b[0m' + '\x1b[1;36;40m' + str(data["numberOfBlocks"]) + '\x1b[0m')
+	try:
+		url = "https://wallet.burst.cryptoguru.org:8125/burst?requestType=getBlockchainStatus"
+		data = session.get(url)
+		data = data.json()
+		print('\x1b[1m' + "Current Block: " + '\x1b[0m' + '\x1b[1;36;40m' + str(data["numberOfBlocks"]) + '\x1b[0m')
+	except:
+		pass
 
 # UTILITY FUNCTIONS
 def burst_to_numeric(address):
@@ -222,30 +248,40 @@ def burst_data():
 	data = ""
 	accountData = ""
 	try:
-		#get pool data
-		data = session.get('http://burst.btfg.space:8000/btfgmonitor.php?api=' + API_KEY + '&id=' + numeric_id)
-		data = data.json()
-
-		#get user wallet data
-		accountData = session.get("https://wallet.burst.cryptoguru.org:8125/burst?requestType=getAccount&account=" + numeric_id)
-		accountData = accountData.json()
+		#clears screen after each round
+		os.system('cls' if os.name == 'nt' else 'clear')
+		try:
+			#get pool data
+			data = session.get('http://104.128.234.137:8000/btfgmonitor.php?api=' + API_KEY + '&id=' + numeric_id)
+			data = data.json()
+		except:
+			print("Error: Invalid mining data. Is the pool down?")
+			pass
+		try:
+			#get user wallet data
+			accountData = session.get("https://wallet.burst.cryptoguru.org:8125/burst?requestType=getAccount&account=" + numeric_id)
+			accountData = accountData.json()
+		except:
+			print("Error: Could not find wallet data.")
+			pass
+		#std output function (print)
+		print_output(data, accountData)
 	except:
-		print("Error: Processing JSON data failed")
+		#clears screen after each round
+		os.system('cls' if os.name == 'nt' else 'clear')
 
-	#clears screen after each round
-	os.system('cls' if os.name == 'nt' else 'clear')
-
-	#std output function (print)
-	print_output(data, accountData)
+		#std output function (print)
+		print_output(data, accountData)
 
 # MAIN
 if __name__ == "__main__":
 	#default config
 	MAX_WIDTH = 40
 	DISPLAY_SHARES = 1
+	DISPLAY_TX = 0
 	INTERVAL = 300
 	CURRENCY = "USD"
-	API_KEY = "" #Enter BTFG API Key here
+	API_KEY = "b586ea54-3103-4569-ae1e-fd618502ddac" #Enter BTFG API Key here
 
 	#chart character
 	TICK = b'\xe2\x96\x88'.decode('utf-8')
@@ -257,7 +293,7 @@ if __name__ == "__main__":
 	#Handle user input and config
 	config = configparser.ConfigParser()    
 
-	print('\x1b[1m' + "BTFG Monitor v2.0" + '\x1b[0m')
+	print('\x1b[1m' + "BTFG Monitor v2.1" + '\x1b[0m')
 	print("created by " + '\x1b[0;34;46m' + "treebeard\n" + '\x1b[0m')
 
 	if not os.path.exists('BTFGMonitor.ini'):
@@ -271,6 +307,7 @@ if __name__ == "__main__":
 		#user config
 		print('\x1b[0;31;47m' + "\nLeave the following blank for default values (hit enter):" + '\x1b[0m')
 		shares_input = six.moves.input('\x1b[1m' + "Display Block Shares (default=yes): " + '\x1b[0m').strip().lower()
+		tx_input = six.moves.input('\x1b[1m' + "Display Past Payouts (default=no): " + '\x1b[0m').strip().lower()
 		interval_input = six.moves.input('\x1b[1m' + "Update Frequency (default=300, minimum=300): " + '\x1b[0m').strip()
 		width_input = six.moves.input('\x1b[1m' + "Max Chart Width (default=40): " + '\x1b[0m').strip()
 		currency_input = six.moves.input('\x1b[1m' + "Currency (default=USD): " + '\x1b[0m').strip()
@@ -278,6 +315,7 @@ if __name__ == "__main__":
 		#create config
 		config['DEFAULT'] = {'id' : numeric_id,
 							 'displayShares': shares_input,
+							 'displayTX': tx_input,
 							 'interval': interval_input,
 							 'width': width_input,
 							 'currency': currency_input}
@@ -291,6 +329,7 @@ if __name__ == "__main__":
 		try:
 			numeric_id = config['DEFAULT']['id']
 			shares_input = config['DEFAULT']['displayShares']
+			tx_input = config['DEFAULT']['displayTX']
 			interval_input = config['DEFAULT']['interval']
 			width_input = config['DEFAULT']['width']
 			currency_input = config['DEFAULT']['currency']
@@ -299,6 +338,8 @@ if __name__ == "__main__":
 
 	if shares_input == 'no' or shares_input=='n':
 		DISPLAY_SHARES = 0
+	if tx_input == 'yes' or tx_input=='y':
+		DISPLAY_TX = 1
 
 	if not interval_input or int(interval_input) < 300:
 		pass
