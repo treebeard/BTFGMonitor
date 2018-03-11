@@ -110,12 +110,10 @@ def print_output(data, accountData):
 			print('\x1b[1m' + "Description: " + '\x1b[0m' + data["Account"]["Description"])
 		if "Address" in data["Account"]:
 			print('\x1b[1m' + "Address: " + '\x1b[0m' + data["Account"]["Address"])
-		if "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "20 Plus Weekly":
-			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(20))
-		elif "Threshold" in data["Burst"] and data["Burst"]["Threshold"] == "Weekly":
-			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + "Weekly")
-		elif "Threshold" in data["Burst"]:
+		if "Threshold" in data["Burst"] and data["Burst"]["Threshold"].isdigit():
 			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"] + '\x1b[1;31;40m' + " BURST" + '\x1b[0m' + fiatConversion(data["Burst"]["Threshold"]))
+		elif "Threshold" in data["Burst"]:
+			print('\x1b[1m' + "Minimum Payout: " + '\x1b[0m' + data["Burst"]["Threshold"])
 	except:
 		pass
 
@@ -168,8 +166,7 @@ def print_output(data, accountData):
 				print("Time: " + info["Time"])
 				print("Amount: " + '{:.8f}'.format(float(info["Amount"]) / 100000000))
 				print("")
-		except Exception as e:
-			print(e)
+		except:
 			pass
 
 	for i in range(MAX_WIDTH + 20):
